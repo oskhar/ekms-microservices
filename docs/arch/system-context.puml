@@ -1,0 +1,17 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+!include <office/Concepts/service_application>
+
+left to right direction
+
+AddSystemTag("conApp", $sprite="service_application", $legendText="system")
+
+Person(user, "App User", "Pengguna Aplikasi Posyandu")
+System(posyandu, "Posyandu System", "Sistem aplikasi Posyandu siap pakai", $tags="conApp")
+System(eKMS, "eKMS System", "elektronik Kartu Menuju Sehat", "", $tags="conApp")
+
+Rel(user, posyandu, "Uses", "HTTPS")
+Rel_L(posyandu, eKMS, "Uses", "HTTPS/REST")
+SHOW_LEGEND()
+@enduml

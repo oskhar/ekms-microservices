@@ -41,6 +41,7 @@
     { "name": "decorator", "description": "Custom decorators and meta programming" },
     { "name": "library", "description": "External or internal libraries" },
     { "name": "websocket", "description": "WebSocket integrations and handlers" },
+    { "name": "architecture", "description": "Project architecture and design" },
     { "name": "collaboration", "description": "Features for team collaboration or sharing" }
   ],
   "types": [

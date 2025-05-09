@@ -1,0 +1,76 @@
+@startuml
+'=====[ C4 Setup ]=====
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+
+!include DEVICONS/nodejs_small.puml
+!include DEVICONS/mysql.puml
+!include FONTAWESOME/users.puml
+
+!include <office/Concepts/firewall>
+!include <office/Servers/application_server>
+!include <office/Concepts/service_application>
+!include <office/Clouds/cloud>
+
+'=====[ Style Settings ]=====
+left to right direction
+
+AddSystemTag("conApp", $sprite="service_application", $legendText="system")
+AddRelTag("firewall", $textColor="$ARROW_FONT_COLOR", $lineColor="$ARROW_COLOR", $sprite="firewall,scale=0.3,color=red", $legendText="firewall")
+AddElementTag("microService", $sprite="cloud", $shape=EightSidedShape(), $bgColor="CornflowerBlue", $fontColor="white", $legendText="micro service\neight sided")
+AddContainerTag("webApp", $sprite="application_server", $legendText="web app container")
+
+'=====[ Components ]=====
+Person(user, "Kader Posyandu", "Yang bertugas di Posyandu", $sprite="users")
+Person(remaja, "Remaja", "Remaja di wilayah Posyandu", $sprite="users")
+Person_Ext(puskesmas, "Petugas Pukesmas", "Memantau perkembangan Posyandu", $sprite="users")
+
+System_Boundary(c1, "Posyandu System") {
+  Container(spa, "Web Application", "html, css, vuejs, vuetify, sneat", $tags="webApp")
+  Container(api, "API Application", "Laravel", "Handles all business logic", $sprite="laravel")
+  ContainerDb(db, "Database", "Mysql Database", $sprite="mysql")
+}
+
+System_Boundary(c2, "eKMS System") {
+  Container(apigateway, "API Gateway", "nodejs", $sprite="nodejs_small")
+
+  Container(grafikService, "Grafik Service", "<<Bounded Context>>", $tags="microService")
+  Container(bayiService, "Bayi Service", "<<Bounded Context>>", $tags="microService")
+  Container(dataIOService, "DataIO Service", "<<Bounded Context>>", $tags="microService")
+  Container(laporanService, "Laporan Service", "<<Bounded Context>>", $tags="microService")
+  Container(penimbangService, "Penimbang Service", "<<Bounded Context>>", $tags="microService")
+
+  ContainerDb(bayiDB, "Bayi", "MySQL Database", $sprite="mysql")
+  ContainerDb(penimbangDB, "Penimbang", "MySQL Database", $sprite="mysql")
+}
+
+'=====[ Relationships ]=====
+Rel(user, spa, "Uses", "HTTPS", $tags="firewall")
+Rel(remaja, spa, "Uses", "HTTPS", $tags="firewall")
+Rel(puskesmas, spa, "Uses", "HTTPS", $tags="firewall")
+
+Rel(spa, api, "Uses", "HTTPS/REST")
+
+Rel_L(api, db, "Reads from and writes to", "SQL/JDBC, port 3306")
+Rel_R(api, apigateway, "Uses", "HTTPS/REST")
+
+Rel(apigateway, grafikService, "Uses", "gRPC")
+Rel(apigateway, bayiService, "Uses", "gRPC")
+Rel(apigateway, dataIOService, "Uses", "gRPC")
+Rel(apigateway, laporanService, "Uses", "gRPC")
+Rel(apigateway, penimbangService, "Uses", "gRPC")
+
+Rel(grafikService, penimbangService, "Gets data from", "gRPC")
+Rel(laporanService, penimbangService, "Gets data from", "gRPC")
+Rel(dataIOService, bayiService, "Reads & Writes", "gRPC")
+Rel(dataIOService, penimbangService, "Reads & Writes", "gRPC")
+Rel(penimbangService, bayiService, "Gets data from", "gRPC")
+
+Rel_L(bayiService, bayiDB, "Reads & Writes", "SQL/JDBC, port 3306")
+Rel_R(penimbangService, penimbangDB, "Reads & Writes", "SQL/JDBC, port 3306")
+
+'=====[ Final Touch ]=====
+SHOW_LEGEND()
+@enduml
