@@ -1,0 +1,73 @@
+@startuml
+!define C4_STRICT
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+' --- Ikon dari Font Awesome & Devicons ---
+!include https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5/server.puml
+!include https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5/database.puml
+!include https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5/cubes.puml
+!include https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons/java.puml
+!include https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons/go.puml
+!include https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons/python.puml
+
+' --- Konfigurasi Tampilan ---
+skinparam shadowing true
+title Perbandingan Arsitektur: Monolith vs. Microservices
+
+' ===================================
+' === ARSITEKTUR MONOLITH ===
+' ===================================
+package "Arsitektur Monolith" #aliceblue {
+  node "Infrastruktur Server" as MonolithInfra <<$server>> {
+    Container(monolith_app, "Aplikasi E-commerce", "Java", "Semua fungsionalitas bisnis (Produk, Pesanan, Pengguna) digabung menjadi satu unit deployment.", $sprite="java")
+
+    note right of monolith_app
+      Untuk melakukan scaling, seluruh aplikasi
+      harus diduplikasi secara utuh.
+      Ini memakan banyak sumber daya jika
+      hanya satu modul yang butuh skala.
+    end note
+  }
+  ContainerDb(monolith_db, "Database Utama", "MySQL", "Satu skema database untuk seluruh aplikasi.", $sprite="database")
+
+  monolith_app --> monolith_db: "Membaca & Menulis data"
+}
+
+
+' =======================================
+' === ARSITEKTUR MICROSERVICES ===
+' =======================================
+package "Arsitektur Microservices" #lightyellow {
+    node "Platform Orkestrasi" as MicroserviceInfra <<$server>> {
+        Container(user_service, "Layanan Pengguna", "Go", "Mengelola data dan otentikasi pengguna.", $sprite="go")
+        Container(product_service, "Layanan Produk", "Java", "Mengelola katalog dan stok produk.", $sprite="java")
+        Container(order_service, "Layanan Pesanan", "Python", "Memproses pesanan dan pembayaran.", $sprite="python")
+    }
+
+    ' --- Contoh Scaling Horizontal ---
+    node "Replika untuk Beban Tinggi" as ScaledProductService <<$server>> {
+        Container(product_service_replica, "Layanan Produk (Replika)", "Java", "Hanya layanan yang sibuk yang direplikasi.", $sprite="java")
+    }
+
+    note right of MicroserviceInfra
+     Setiap layanan independen, dapat
+     di-deploy dan di-scaling secara terpisah.
+     Memungkinkan penggunaan teknologi
+     yang berbeda untuk setiap layanan.
+    end note
+
+    ' --- Database per Layanan ---
+    ContainerDb(user_db, "DB Pengguna", "PostgreSQL", "Database khusus untuk data pengguna.", $sprite="database")
+    ContainerDb(product_db, "DB Produk", "MongoDB", "Database khusus untuk data produk.", $sprite="database")
+    ContainerDb(order_db, "DB Pesanan", "MySQL", "Database khusus untuk data pesanan.", $sprite="database")
+
+    ' --- Relasi Antar Kontainer ---
+    user_service --> user_db
+    product_service --> product_db
+    product_service_replica --> product_db
+    order_service --> order_db
+
+    order_service --> user_service: "Mengambil data pengguna via API"
+    order_service --> product_service: "Mengecek stok produk via API"
+}
+
+@enduml

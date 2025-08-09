@@ -1,0 +1,52 @@
+@startuml
+!define C4_STRICT
+' Menggunakan pustaka C4-PlantUML standar untuk elemen C4.
+' Ini menghilangkan dependensi pada file ikon eksternal yang sebelumnya menyebabkan error.
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+' --- Konfigurasi Tampilan ---
+title Batas Layanan Diperkuat oleh Batas Tim (Manuver Conway Terbalik)
+skinparam shadowing true
+left to right direction
+
+' ==================================================
+' === BAGIAN 1: STRUKTUR TIM LINTAS FUNGSIONAL ===
+' ==================================================
+' 'Person' dalam C4 model digunakan untuk merepresentasikan peran atau grup pengguna/tim.
+Person(team_alpha, "Tim Alpha", "Tim Lintas Fungsional yang bertanggung jawab atas domain Pelanggan.")
+Person(team_beta, "Tim Beta", "Tim Lintas Fungsional yang bertanggung jawab atas domain Pesanan.")
+Person(team_gamma, "Tim Gamma", "Tim Lintas Fungsional yang bertanggung jawab atas domain Penagihan.")
+
+note right of team_beta
+  Setiap tim memiliki semua keahlian
+  (UI, Backend, Data) yang dibutuhkan
+  untuk membangun dan mengoperasikan
+  layanannya secara mandiri.
+  
+  Ini mengurangi ketergantungan
+  dan mempercepat pengiriman fitur.
+end note
+
+' ===================================================
+' === BAGIAN 2: ARSITEKTUR LAYANAN YANG SELARAS ===
+' ===================================================
+' Setiap layanan direpresentasikan sebagai 'System' atau 'Container' mandiri.
+System_Boundary(app_landscape, "Lanskap Sistem E-Commerce") {
+    Container(customer_service, "Layanan Pelanggan", "Java", "Mengelola semua data dan interaksi terkait pelanggan.")
+    Container(order_service, "Layanan Pesanan", "Python", "Memproses pembuatan dan pelacakan pesanan.")
+    Container(billing_service, "Layanan Penagihan", "Go", "Mengelola faktur dan proses pembayaran.")
+}
+
+' ===================================================
+' === HUBUNGAN: KEPEMILIKAN DOMAIN YANG JELAS ===
+' ===================================================
+' 'Rel' digunakan untuk menunjukkan hubungan dan aliran data.
+Rel(team_alpha, customer_service, "Membangun & Memiliki Sepenuhnya", "Domain Ownership")
+Rel(team_beta, order_service, "Membangun & Memiliki Sepenuhnya", "Domain Ownership")
+Rel(team_gamma, billing_service, "Membangun & Memiliki Sepenuhnya", "Domain Ownership")
+
+' Relasi antar sistem (layanan).
+Rel(customer_service, order_service, "Memberikan data pelanggan", "API Call (JSON/HTTPS)")
+Rel(order_service, billing_service, "Mengirim info pesanan untuk ditagih", "API Call (JSON/HTTPS)")
+
+@enduml

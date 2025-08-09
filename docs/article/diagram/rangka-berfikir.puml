@@ -1,0 +1,82 @@
+@startuml
+skinparam defaultFontName "Inter, Helvetica"
+skinparam defaultFontSize 12
+skinparam rectangle {
+    backgroundColor #EFEFEF
+    borderColor #555555
+    borderThickness 1.5
+    shadowing false
+    padding 15
+    roundCorner 10
+}
+skinparam package {
+    backgroundColor #FFFFFF
+    borderColor #006F4D
+    borderThickness 1
+    fontColor #006F4D
+    stereotypeFontColor #006F4D
+}
+skinparam note {
+    backgroundColor #FFFFE0
+    borderColor #555555
+    fontColor #333333
+}
+skinparam database {
+    backgroundColor #E3F2FD
+    borderColor #1565C0
+    borderThickness 1.5
+}
+skinparam arrow {
+    color #333333
+    thickness 1.5
+}
+
+' Title
+title Kerangka Berpikir Penelitian: Validasi Kerangka Kerja Evaluasi Multi-Dimensi
+
+' Diagram Content
+top to bottom direction
+
+rectangle "<b>Identifikasi Masalah & Kesenjangan Penelitian</b>" as Masalah
+note right of Masalah
+  Tidak adanya kerangka kerja evaluasi holistik
+  yang secara kuantitatif mengukur trade-off
+  antara metrik mesin dan metrik manusia
+  dalam arsitektur modern.
+end note
+
+rectangle "<b>Definisi 8 Skenario Arsitektural</b>\n(Studi Kasus: ERP Vertical Slice)" as Skenario
+note right of Skenario
+  <b>Spesifikasi Pola (Scope):</b>
+  - <b>Microservices:</b> Dekomposisi by Subdomain (DDD)
+    dengan komunikasi berbasis <u>Orkestrasi</u>.
+  - <b>CQRS:</b> Model Tulis (Normal) & Baca (Denormalisasi)
+    dengan sinkronisasi <u>asinkron</u> via Message Broker.
+  - <b>Event Sourcing:</b> Persistensi sebagai Log Event Immutable
+    dengan mitigasi kinerja via <u>Snapshotting</u>.
+end note
+
+
+rectangle "<b>Proses Implementasi & Pengumpulan Data Multi-Dimensi</b>" as Proses
+
+package "Pengumpulan Data Kuantitatif & Kualitatif" {
+  rectangle "<b>1. Metrik Kinerja Sistem</b>\n(Latensi, Throughput, Resource Usage)" as Kinerja
+  rectangle "<b>2. Metrik Biaya Arsitektural</b>\n(Consistency Lag, Rehydration Time, Storage Footprint)" as Biaya
+  rectangle "<b>3. Metrik Upaya Pengembangan</b>\n(Lead Time for Changes - SCS, Developer's Log)" as Upaya
+}
+
+rectangle "<b>Analisis Trade-Off & Identifikasi Titik Sensitivitas</b>\n(Menggunakan Prinsip ATAM)" as Analisis
+
+database "<b>Luaran Penelitian:</b>\n<b>Validasi Kerangka Kerja Evaluasi Multi-Dimensi</b>\n(Model Keputusan Berbasis Bukti)" as KerangkaKerja
+
+
+' Connections
+Masalah --> Skenario
+Skenario --> Proses
+Proses ..> Kinerja
+Proses ..> Biaya
+Proses ..> Upaya
+(Kinerja, Biaya, Upaya) --> Analisis
+Analisis --> KerangkaKerja
+
+@enduml

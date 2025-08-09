@@ -1,0 +1,58 @@
+@startuml
+!define C4_STRICT
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+' --- Ikon dari Font Awesome ---
+!include https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5/users.puml
+!include https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5/cogs.puml
+!include https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5/database.puml
+
+' --- Konfigurasi Tampilan ---
+title Ilustrasi Hukum Conway dengan C4 Model
+skinparam shadowing true
+left to right direction
+
+' =================================================
+' === BAGIAN 1: STRUKTUR ORGANISASI (PENYEBAB) ===
+' =================================================
+Boundary(org_boundary, "Struktur Organisasi (Tersilo secara Fungsional)") {
+  Person(ui_team, "Tim UI/Frontend", "Fokus pada lapisan antarmuka pengguna.", $sprite="users")
+  Person(backend_team, "Tim Backend", "Fokus pada lapisan logika bisnis.", $sprite="cogs")
+  Person(dba_team, "Tim Database (DBA)", "Fokus pada lapisan data dan skema.", $sprite="database")
+
+  note as OrgNote
+    Struktur tim yang terpisah (silo)
+    menciptakan batasan komunikasi
+    di antara mereka. Perubahan yang
+    melintasi batas tim membutuhkan
+    koordinasi yang lambat.
+  end note
+}
+
+' =============================================
+' === BAGIAN 2: ARSITEKTUR SISTEM (AKIBAT) ===
+' =============================================
+System_Boundary(app_boundary, "Arsitektur Aplikasi Monolitik") {
+    Container(ui_layer, "Lapisan Antarmuka", "JavaScript, CSS", "Hasil kerja Tim UI.", $sprite="users")
+    Container(logic_layer, "Lapisan Logika Bisnis", "Java", "Hasil kerja Tim Backend.", $sprite="cogs")
+    ContainerDb(data_layer, "Lapisan Akses Data & DB", "SQL", "Hasil kerja Tim DBA.", $sprite="database")
+
+    Rel(ui_layer, logic_layer, "Memanggil fungsi/API internal")
+    Rel(logic_layer, data_layer, "Membaca & Menulis data")
+
+    note as ArchNote
+     "Setiap organisasi yang merancang sistem...
+     pasti akan menghasilkan desain yang
+     strukturnya merupakan salinan dari
+     struktur komunikasi organisasi tersebut."
+     - Melvin E. Conway
+    end note
+}
+
+' =================================================================
+' === HUBUNGAN: Organisasi Mencerminkan Desain Sistem ===
+' =================================================================
+Rel(ui_team, ui_layer, "Membangun & Memiliki", "mencerminkan")
+Rel(backend_team, logic_layer, "Membangun & Memiliki", "mencerminkan")
+Rel(dba_team, data_layer, "Membangun & Memiliki", "mencerminkan")
+
+@enduml

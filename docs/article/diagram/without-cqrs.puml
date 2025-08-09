@@ -1,0 +1,62 @@
+@startuml
+skinparam shadowing true
+skinparam rectangle {
+  BackgroundColor<<UI>> #ECECEC
+  BackgroundColor<<Database>> #FAD7A0
+  BackgroundColor<<Application>> #D6EAF8
+  BackgroundColor<<Model>> #AED6F1
+}
+
+actor User
+
+' Komponen Utama
+rectangle "UI" <<UI>> {
+}
+
+rectangle "Application" <<Application>> {
+  rectangle "Model" <<Model>> {
+    rectangle "Validation" as V
+    rectangle "Business Logic" as B
+    rectangle "State Management" as S
+  }
+}
+
+database "Database" <<Database>>
+
+' Interaksi antar komponen
+User -> "UI" : makes a change in the UI
+"UI" --> "Model" : change forwarded to model
+
+"Model" -> V : execute validation
+"Model" -> B : apply consequential logic
+"Model" -> S : update internal state
+
+"Model" --> "Database" : update database
+"Model" <-- "Database" : read data from database
+
+"Model" --> "UI" : service provides information for presentation
+
+' Anotasi tambahan
+note right of "UI"
+  User interacts with the UI.
+  Triggers events forwarded to Model.
+end note
+
+note left of "Model"
+  Model is responsible for:
+  - Executing validation
+  - Business logic
+  - Managing state
+end note
+
+note left of "Database"
+  Persistent data storage.
+  Read/write operations
+  are triggered by the Model.
+end note
+
+note right of "UI"
+  UI presents data
+  provided by the Application.
+end note
+@enduml

@@ -8,10 +8,14 @@ left to right direction
 AddSystemTag("conApp", $sprite="service_application", $legendText="system")
 
 Person(user, "App User", "Pengguna Aplikasi Posyandu")
-System(posyandu, "Posyandu System", "Sistem aplikasi Posyandu siap pakai", $tags="conApp")
+System(posyandu, "Posyandu System", "Sistem aplikasi Posyandu", $tags="conApp")
 System(eKMS, "eKMS System", "elektronik Kartu Menuju Sehat", "", $tags="conApp")
+System_Ext(servana, "Servana System", "lingkungan pengembangan yang luas & stabil")
+Person_Ext(user2, "Vendor IT", "Vendor yang Maintenace Sistem")
 
 Rel(user, posyandu, "Uses", "HTTPS")
 Rel_L(posyandu, eKMS, "Uses", "HTTPS/REST")
+Rel_R(posyandu, servana, "Uses", "HTTPS/REST")
+Rel_U(user2, servana, "Uses", "HTTPS")
 SHOW_LEGEND()
 @enduml

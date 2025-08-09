@@ -1,0 +1,70 @@
+@startuml
+skinparam shadowing true
+skinparam rectangle {
+  BackgroundColor<<UI>> #ECECEC
+  BackgroundColor<<Database>> #FAD7A0
+  BackgroundColor<<App>> #D6EAF8
+  BackgroundColor<<Query>> #A9DFBF
+  BackgroundColor<<Command>> #F5B7B1
+}
+
+actor User
+
+' Komponen utama
+rectangle "UI" <<UI>> {
+}
+
+rectangle "Service Interfaces" <<App>> {
+  rectangle "Query Model" <<Query>> {
+    rectangle "Read Logic" as QL
+    rectangle "Projection Mapping" as PM
+    rectangle "View State" as VS
+  }
+
+  rectangle "Command Model" <<Command>> {
+    rectangle "Validation" as CVal
+    rectangle "Business Logic" as CBL
+    rectangle "State Transition" as CST
+  }
+}
+
+database "Database" <<Database>>
+
+' Interaksi: Query
+User -> "UI" : wants to view data
+"UI" --> QL : query sent
+QL --> "Database" : query model reads data
+"Database" --> QL
+QL -> PM : map to presentation shape
+PM -> VS : store in view state
+VS --> "UI" : return data to UI
+
+note right of VS
+  Query services provide data
+  for presentation only.
+end note
+
+' Interaksi: Command
+User -> "UI" : submits a change
+"UI" --> CVal : validate command input
+CVal --> CBL : execute business rules
+CBL --> CST : update in-memory state
+CST --> "Database" : persist new state
+
+note bottom of CBL
+  Command model handles
+  logic and consistency.
+end note
+
+' Anotasi sistem
+note left of "Database"
+  Data persistence shared by
+  both command and query models.
+end note
+
+note right of "UI"
+  UI triggers two types of interactions:
+  - Queries (read-only)
+  - Commands (state-changing)
+end note
+@enduml
