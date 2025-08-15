@@ -1,0 +1,46 @@
+' ======================
+' FILE 2: Offline fallback (plain PlantUML, tanpa C4 includes)
+' Save as: pos-bc-plain-offline.puml
+' Dapat dirender tanpa internet atau library C4-PlantUML
+' ======================
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Inter, Roboto, Arial"
+skinparam rectangle {
+  RoundCorner 18
+  BorderColor #444
+  BackgroundColor #f7f7f7
+}
+
+actor "Kasir" as kasir
+
+rectangle "Transaksi BC" as bc_tx {
+  rectangle "Transaksi API" as tx_api
+  rectangle "Transaksi DB" as tx_db
+}
+
+rectangle "Produk BC" as bc_pd {
+  rectangle "Produk API" as pd_api
+  rectangle "Produk DB" as pd_db
+}
+
+rectangle "Stok BC" as bc_st {
+  rectangle "Stok API" as st_api
+  rectangle "Stok DB" as st_db
+}
+
+kasir --> tx_api : Penjualan
+
+' Integrasi antar BC
+ tx_api --> pd_api : Query produk & harga
+ tx_api --> st_api : Kurangi stok setelah penjualan
+ st_api --> pd_api : Validasi produk saat mutasi
+
+' Penyimpanan data
+ tx_api --> tx_db : CRUD
+ pd_api --> pd_db : CRUD
+ st_api --> st_db : CRUD
+
+@enduml
+
+
